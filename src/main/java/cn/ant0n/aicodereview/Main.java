@@ -16,9 +16,9 @@ public class Main {
         codeReviewFactor.setOwner(getEnv("OWNER"));
         codeReviewFactor.setRepository(getEnv("REPOSITORY"));
         codeReviewFactor.setBranch("master");
-        codeReviewFactor.setAccessKey(getEnv("GIT"));
+        codeReviewFactor.setAccessKey(getEnv("GIT_ACCESS_KEY"));
         codeReviewFactor.setBaseUrl(getEnv("GIT_BASE_URL"));
-        codeReviewFactor.setBigModelAccessKey(getEnv("BIG_MODEL"));
+        codeReviewFactor.setBigModelAccessKey(getEnv("BIG_MODEL_ACCESS_KEY"));
         codeReviewFactor.setBigModelBaseUrl(getEnv("BIG_MODEL_BASE_URL"));
         codeReviewFactor.setLanguage(getEnv("LANGUAGE"));
         codeReviewFactor.setTemplateType(getEnv("TEMPLATE"));
