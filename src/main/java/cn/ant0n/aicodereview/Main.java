@@ -5,43 +5,50 @@ import cn.ant0n.aicodereview.domain.model.valobj.CodeReviewFactor;
 import cn.ant0n.aicodereview.domain.model.valobj.CodeReviewResult;
 import cn.ant0n.aicodereview.domain.service.factory.DefaultCodeReviewStrategyFactory;
 import cn.ant0n.aicodereview.domain.service.node.StartNode;
-
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+
 
 public class Main {
-    public static void main(String[] args) throws ExecutionException, InterruptedException, TimeoutException {
+    public static void main(String[] args) {
         StartNode startNode = new StartNode();
         CodeReviewFactor codeReviewFactor = new CodeReviewFactor();
-        codeReviewFactor.setOwner("Ant0n-hhh");
-        codeReviewFactor.setRepository("deepseek-code-review");
+        codeReviewFactor.setOwner(getEnv("OWNER"));
+        codeReviewFactor.setRepository(getEnv("REPOSITORY"));
         codeReviewFactor.setBranch("master");
-        codeReviewFactor.setAccessKey("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");
-        codeReviewFactor.setBaseUrl("https://api.github.com/");
-        codeReviewFactor.setBigModelAccessKey("sk-64dc70df479a4cbab0f1564e67229c7d");
-        codeReviewFactor.setBigModelBaseUrl("https://dashscope.aliyuncs.com/");
-        codeReviewFactor.setLanguage("Java");
-        codeReviewFactor.setTemplateType("BUSINESS_DEVELOPMENT_PROMPT");
-        List<String> promptOption = new ArrayList<>();
-        promptOption.add("ROLE");
-        promptOption.add("SKILL");
-        promptOption.add("TASK");
+        codeReviewFactor.setAccessKey(getEnv("GIT_ACCESS_KEY"));
+        codeReviewFactor.setBaseUrl(getEnv("GIT_BASE_URL"));
+        codeReviewFactor.setBigModelAccessKey(getEnv("BIG_MODEL_ACCESS_KRY"));
+        codeReviewFactor.setBigModelBaseUrl(getEnv("BIG_MODEL_BASE_URL"));
+        codeReviewFactor.setLanguage(getEnv("LANGUAGE"));
+        codeReviewFactor.setTemplateType(getEnv("TEMPLATE"));
+        String prompt = getEnv("P_OPTION");
+        List<String> promptOption = Arrays.asList(prompt.split(","));
         codeReviewFactor.setPromptOption(promptOption);
-        codeReviewFactor.setWebhook("48db3d6e-b971-483c-a733-7c4816be2c46");
-        codeReviewFactor.setInformBaseUrl("https://open.feishu.cn/");
+        codeReviewFactor.setWebhook(getEnv("WEB_HOOK"));
+        codeReviewFactor.setInformBaseUrl(getEnv("INFORM_BASE_URL"));
 
-        List<String> contextOption =new ArrayList<>();
-        contextOption.add("FILE_TYPE");
-        contextOption.add("COMMIT_MESSAGE");
-        contextOption.add("CODE_DIFF");
-
+        String context = getEnv("C_OPTION");
+        List<String> contextOption = Arrays.asList(context.split(","));
         codeReviewFactor.setContextOption(contextOption);
-        CodeReviewResult codeReviewResult = startNode.apply(codeReviewFactor, new DefaultCodeReviewStrategyFactory.DynamicContext());
-        if(codeReviewResult != null){
-            System.out.println("流程结束");
+
+        try{
+            CodeReviewResult codeReviewResult = startNode.apply(codeReviewFactor, new DefaultCodeReviewStrategyFactory.DynamicContext());
+            if(codeReviewResult != null){
+                System.out.println("流程结束");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
         System.exit(0);
     }
+
+    private static String getEnv(String key) {
+        String value = System.getenv(key);
+        if (null == value || value.isEmpty()) {
+            throw new RuntimeException("该值:" + key + "为空，请先设置");
+        }
+        return value;
+    }
+
 }
