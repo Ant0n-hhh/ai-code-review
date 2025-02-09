@@ -1,43 +1,38 @@
 package cn.ant0n.aicodereview.domain.model.request;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatCompletionsRequest implements Serializable {
-    private static final long serialVersionUID = -7988151926241837899L;
-    private String model = "qwen2.5:14b";
-    private List<Message> messages;
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ChatCompletionsRequest{
 
-    public static class Message implements Serializable {
-        private static final long serialVersionUID = -7988151926241837899L;
-        private String role = "user";
+    private String model = "qwen-coder-plus";
+    private List<Message> messages = new ArrayList<>();
+
+    @Data
+    @NoArgsConstructor
+    public static class Message{
+
+        private String role;
         private String content;
 
-        public Message(String content) {
+        public Message(String role, String content) {
             this.content = content;
+            this.role = role;
         }
-
     }
 
-    public ChatCompletionsRequest() {
-        messages = new ArrayList<Message>();
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public List<Message> getMessages() {
-        return messages;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    public void add(String content){
-        messages.add(new Message(content));
+    public void add(String role, String content){
+        messages.add(new Message(role, content));
     }
 }
