@@ -47,7 +47,6 @@ public class CodeReviewNode extends AbstractCodeReviewSupport<CodeReviewFactor, 
 
         CommitMessage commitMessage = dynamicContext.getCommitMessage();
         String prompt = CodeReviewPromptBuildFactory.build(dynamicContext.getType(), dynamicContext.getParam());
-
         for(Map.Entry<String, String> entry : commitMessage.getDiff().entrySet()){
             CodeReviewContext codeReviewContext = new CodeReviewContext();
             codeReviewContext.put("CODE_DIFF", entry.getValue());

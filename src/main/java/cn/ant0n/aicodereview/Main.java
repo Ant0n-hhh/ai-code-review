@@ -1,23 +1,26 @@
 package cn.ant0n.aicodereview;
 
-
 import cn.ant0n.aicodereview.domain.model.valobj.CodeReviewFactor;
 import cn.ant0n.aicodereview.domain.model.valobj.CodeReviewResult;
 import cn.ant0n.aicodereview.domain.service.factory.DefaultCodeReviewStrategyFactory;
 import cn.ant0n.aicodereview.domain.service.node.StartNode;
+
+
 import java.util.Arrays;
 import java.util.List;
 
 
+// https://github.com/Ant0n-hhh/deepseek-code-review-test.git
+// https://open.feishu.cn/open-apis/bot/v2/hook/48db3d6e-b971-483c-a733-7c4816be2c46
 public class Main {
     public static void main(String[] args) {
         StartNode startNode = new StartNode();
         CodeReviewFactor codeReviewFactor = new CodeReviewFactor();
         codeReviewFactor.setOwner(getEnv("OWNER"));
         codeReviewFactor.setRepository(getEnv("REPOSITORY"));
-        codeReviewFactor.setBranch("master");
-        codeReviewFactor.setAccessKey(getEnv("GIT_ACCESS_KEY"));
-        codeReviewFactor.setBaseUrl(getEnv("GIT_BASE_URL"));
+        codeReviewFactor.setBranch(getEnv("MASTER"));
+        codeReviewFactor.setAccessKey(getEnv("CODE_KEY"));
+        codeReviewFactor.setBaseUrl(getEnv("CODE_BASE_URL"));
         codeReviewFactor.setBigModelAccessKey(getEnv("BIG_MODEL_ACCESS_KEY"));
         codeReviewFactor.setBigModelBaseUrl(getEnv("BIG_MODEL_BASE_URL"));
         codeReviewFactor.setLanguage(getEnv("LANGUAGE"));
@@ -41,6 +44,8 @@ public class Main {
             e.printStackTrace();
         }
         System.exit(0);
+
+
     }
 
     private static String getEnv(String key) {

@@ -9,6 +9,7 @@ import cn.ant0n.aicodereview.domain.service.factory.DefaultCodeReviewStrategyFac
 import cn.ant0n.aicodereview.framework.StrategyHandler;
 import cn.ant0n.aicodereview.utils.interfaces.IGitRestService;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -42,8 +43,6 @@ public class QueryCommitNode extends AbstractCodeReviewSupport<CodeReviewFactor,
         try{
             Call<SingleCommitResponse> call = gitRestService.getDiff(owner, repository, branch, authorization);
             SingleCommitResponse response = call.execute().body();
-            assert response != null;
-
             CommitMessage commitMessage = new CommitMessage();
             commitMessage.setSha(response.getSha());
             commitMessage.setMessage(response.getCommit().getMessage());
