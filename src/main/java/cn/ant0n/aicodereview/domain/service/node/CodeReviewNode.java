@@ -14,6 +14,13 @@ import cn.ant0n.aicodereview.prompt.enums.PromptEnhancedEnums;
 import cn.ant0n.aicodereview.prompt.factory.CodeReviewPromptBuildFactory;
 
 import cn.ant0n.aicodereview.utils.interfaces.IChatModelService;
+import cn.ant0n.sdk.core.data.text.ChatMessageText;
+import cn.ant0n.sdk.core.data.text.impl.SystemMessageText;
+import cn.ant0n.sdk.core.data.text.impl.UserMessageText;
+import cn.ant0n.sdk.core.model.chat.ChatLanguageModel;
+import cn.ant0n.sdk.core.model.chat.request.ChatCompletionsConfigContext;
+import cn.ant0n.sdk.core.model.output.Response;
+import cn.ant0n.sdk.qwen.QwenChatModel;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -45,6 +52,14 @@ public class CodeReviewNode extends AbstractCodeReviewSupport<CodeReviewFactor, 
                 .client(client)
                 .build().create(IChatModelService.class);
 
+        ChatLanguageModel chatLanguageModel = new QwenChatModel();
+        ChatCompletionsConfigContext chatCompletionsConfigContext = new ChatCompletionsConfigContext();
+        chatCompletionsConfigContext.setApiKey(requestParameter.getBigModelAccessKey());
+        chatCompletionsConfigContext.setStream(false);
+        chatCompletionsConfigContext.setModel("qwen-coder-plus");
+        chatCompletionsConfigContext.setTopP((float)0.5);
+        chatCompletionsConfigContext.setTemperature((float)0.5);
+
         CommitMessage commitMessage = dynamicContext.getCommitMessage();
         String prompt = CodeReviewPromptBuildFactory.build(dynamicContext.getType(), dynamicContext.getParam());
         for(Map.Entry<String, String> entry : commitMessage.getDiff().entrySet()){
@@ -53,20 +68,13 @@ public class CodeReviewNode extends AbstractCodeReviewSupport<CodeReviewFactor, 
             codeReviewContext.put("FILE_TYPE", entry.getKey());
             codeReviewContext.put("COMMIT_MESSAGE", commitMessage.getMessage());
             String context = CodeReviewContextBuildFactory.build(dynamicContext.getSet(), codeReviewContext);
-            String content = prompt + context;
 
-            ChatCompletionsRequest request = new ChatCompletionsRequest();
-            request.add("user", content);
-            String authorization = "Bearer " + requestParameter.getBigModelAccessKey();
-            try{
-                Call<ChatCompletionsResponse> call = chatModelService.completions(request, authorization);
-                ChatCompletionsResponse response = call.execute().body();
-                assert response != null;
-                dynamicContext.getReviewResult().put(entry.getKey(), response.getChoices().get(0).getMessage().getContent());
-                System.out.println("文件名:" + entry.getKey() + "评审完成...");
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            SystemMessageText systemMessageText = SystemMessageText.from(prompt);
+            UserMessageText userMessageText = UserMessageText.from(context);
+
+            Response<ChatMessageText> response = chatLanguageModel.generate(chatCompletionsConfigContext, systemMessageText, userMessageText);
+
+            dynamicContext.getReviewResult().put(entry.getKey(), response.content().text());
         }
         return router(requestParameter, dynamicContext);
     }
